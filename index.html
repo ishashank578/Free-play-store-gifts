@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap & Spin Game</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    border: 5px solid green;
+    box-sizing: border-box;
+    position: relative;
+  }
+  #points { position: fixed; top: 10px; right: 10px; font-size: 20px; font-weight: bold; }
+  #gameArea { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; flex-direction: column; }
+  #startBtn { padding: 15px 30px; font-size: 24px; cursor: pointer; border: 2px solid green; background: white; border-radius: 10px; }
+  #emoji { font-size: 50px; position: absolute; transition: all 0.3s ease; }
+  #spinWheelContainer { display: none; flex-direction: column; align-items: center; }
+  #wheel { width: 250px; height: 250px; border-radius: 50%; border: 5px solid green; position: relative; overflow: hidden; transform: rotate(0deg); transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1); }
+  .segment { position: absolute; width: 50%; height: 50%; transform-origin: 100% 100%; clip-path: polygon(100% 0, 0 100%, 100% 100%); text-align: right; padding-right: 10px; font-weight: bold; font-size: 16px; color: white; }
+  #spinBtn { padding: 10px 20px; font-size: 20px; cursor: pointer; border: 2px solid green; background: white; border-radius: 10px; margin-top: 20px; }
+  #spinResult { margin-top: 20px; font-size: 24px; font-weight: bold; }
+  #redeemBtn { position: fixed; bottom: 0; width: 100%; padding: 15px; font-size: 20px; background: green; color: white; text-align: center; cursor: pointer; }
+  #redeemSection { display: none; position: fixed; bottom: 60px; background: white; border: 2px solid green; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; }
+  #redeemSection input, #redeemSection button { width: 100%; padding: 10px; margin-top: 10px; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<div id="points">Points: 0</div>
+
+<div id="gameArea">
+  <button id="startBtn">Start Game</button>
+  <div id="emoji"></div>
+  
+  <div id="spinWheelContainer">
+    <div id="wheel"></div>
+    <button id="spinBtn">SPIN</button>
+    <div id="spinResult"></div>
+  </div>
+</div>
+
+<div id="redeemBtn">Redeem</div>
+
+<div id="redeemSection">
+  <div>Total Points: <span id="totalPoints">0</span></div>
+  <input type="text" id="upi" placeholder="Enter UPI ID or Email">
+  <button onclick="redeem(500,5)">Redeem ₹5 (500 pts)</button>
+  <button onclick="redeem(5000,50)">Redeem ₹50 (5000 pts)</button>
+</div>
+
+<script>
+let totalPoints = parseInt(localStorage.getItem('totalPoints')||0);
+let dailyPoints = parseInt(localStorage.getItem('dailyPoints')||0);
+let gamesPlayed = parseInt(localStorage.getItem('gamesPlayed')||0);
+let dailySpins = parseInt(localStorage.getItem('dailySpins')||0);
+const maxDailyPoints = 350;
+const emojiEl = document.getElementById('emoji');
+const startBtn = document.getElementById('startBtn');
+const spinWheelContainer = document.getElementById('spinWheelContainer');
+const wheel = document.getElementById('wheel');
+const spinBtn = document.getElementById('spinBtn');
+const spinResult = document.getElementById('spinResult');
+const redeemBtn = document.getElementById('redeemBtn');
+const redeemSection = document.getElementById('redeemSection');
+const totalPointsEl = document.getElementById('totalPoints');
+
+const emojis = ['😀','🎉','😎','🥳','🔥','💥','✨'];
+const spinValues = [1,5,10,15,20,25];
+const segmentColors = ['#4CAF50','#FFEB3B','#FF5722','#F44336','#2196F3','#9C27B0'];
+
+function checkDailyReset() {
+  const today = new Date().toDateString();
+  const lastDate = localStorage.getItem('lastPlayedDate');
+  if(lastDate !== today){
+    dailyPoints = 0;
+    gamesPlayed = 0;
+    dailySpins = 0;
+    localStorage.setItem('dailyPoints',dailyPoints);
+    localStorage.setItem('gamesPlayed',gamesPlayed);
+    localStorage.setItem('dailySpins',dailySpins);
+    localStorage.setItem('lastPlayedDate',today);
+  }
+}
+
+function updatePoints(add=0) {
+  dailyPoints = Math.min(dailyPoints + add, maxDailyPoints);
+  totalPoints += add;
+  localStorage.setItem('dailyPoints', dailyPoints);
+  localStorage.setItem('totalPoints', totalPoints);
+  document.getElementById('points').innerText = `Points: ${totalPoints}`;
+  totalPointsEl.innerText = totalPoints;
+}
+
+function showEmoji() {
+  const e = emojis[Math.floor(Math.random()*emojis.length)];
+  emojiEl.innerText = e;
+  emojiEl.style.left = Math.random()*80 + "%";
+  emojiEl.style.top = Math.random()*60 + "%";
+}
+
+function playEmojiGame() {
+  let timeLeft = 15;
+  const interval = setInterval(() => {
+    timeLeft--;
+    showEmoji();
+    if(timeLeft <= 0) {
+      clearInterval(interval);
+      updatePoints(5);
+      gamesPlayed++;
+      localStorage.setItem('gamesPlayed', gamesPlayed);
+      if(gamesPlayed < 5) {
+        startBtn.innerText = "Next Game";
+        startBtn.style.display = 'block';
+      } else {
+        spinWheelContainer.style.display = 'flex';
+      }
+    }
+  },1000);
+}
+
+startBtn.addEventListener('click', () => {
+  checkDailyReset();
+  startBtn.style.display = 'none';
+  playEmojiGame();
+});
+
+redeemBtn.addEventListener('click', () => {
+  redeemSection.style.display = redeemSection.style.display === 'block' ? 'none' : 'block';
+});
+
+function redeem(pointsNeeded, amount){
+  if(totalPoints >= pointsNeeded){
+    totalPoints -= pointsNeeded;
+    localStorage.setItem('totalPoints', totalPoints);
+    document.getElementById('points').innerText = `Points: ${totalPoints}`;
+    totalPointsEl.innerText = totalPoints;
+    alert(`Redeemed ₹${amount}!`);
+  } else alert(`Not enough points to redeem ₹${amount}`);
+}
+
+const numSegments = spinValues.length;
+const segmentAngle = 360 / numSegments;
+spinValues.forEach((val, idx) => {
+  const segment = document.createElement('div');
+  segment.className = 'segment';
+  segment.style.backgroundColor = segmentColors[idx];
+  segment.style.transform = `rotate(${idx*segmentAngle}deg)`;
+  segment.innerText = val;
+  wheel.appendChild(segment);
+});
+
+spinBtn.addEventListener('click', () => {
+  checkDailyReset();
+  if(dailySpins >= 6){
+    alert("No spins left today!");
+    return;
+  }
+  dailySpins++;
+  localStorage.setItem('dailySpins', dailySpins);
+  spinBtn.disabled = true;
+  spinResult.innerText = "";
+  const spins = 3 + Math.random()*5;
+  const finalAngle = Math.floor(Math.random()*360);
+  const totalRotate = spins*360 + finalAngle;
+  wheel.style.transition = "transform 5s cubic-bezier(0.33, 1, 0.68, 1)";
+  wheel.style.transform = `rotate(${totalRotate}deg)`;
+
+  setTimeout(()=>{
+    const normalized = (360 - (totalRotate % 360)) % 360;
+    const segmentIndex = Math.floor(normalized / segmentAngle) % numSegments;
+    const won = spinValues[segmentIndex];
+    updatePoints(won);
+    spinResult.innerText = `You got ${won} points! Spins left: ${6 - dailySpins}`;
+    spinBtn.disabled = false;
+  },5000);
+});
+
+checkDailyReset();
+updatePoints(0);
+</script>
+
+</body>
+</html>
