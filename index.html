@@ -3,28 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PlayGram Mini App</title>
+<title>Play Adds Game</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Poppins", sans-serif; }
-  body { background: #fff; color: #333; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100vh; }
-  header { width: 100%; background: #00c853; color: white; text-align: center; padding: 15px; font-size: 22px; font-weight: bold; border-radius: 0 0 12px 12px; }
-  .container { width: 90%; max-width: 450px; margin-top: 20px; }
-  .card { background: #f9f9f9; border: 2px solid #00c853; border-radius: 16px; padding: 20px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-  .btn { background: #00c853; color: white; border: none; padding: 12px 18px; border-radius: 12px; font-size: 16px; cursor: pointer; transition: 0.3s; }
-  .btn:hover { background: #009b42; }
-  nav { position: fixed; bottom: 0; background: #fff; border-top: 2px solid #00c853; width: 100%; display: flex; justify-content: space-around; padding: 10px 0; font-weight: bold; }
-  .hidden { display: none; }
-  #wheel { width: 250px; height: 250px; border-radius: 50%; border: 8px solid #00c853; margin: 20px auto; position: relative; overflow: hidden; }
-  .segment { position: absolute; width: 50%; height: 50%; top: 50%; left: 50%; transform-origin: 0% 0%; background: #c8facc; color: #333; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #00c853; }
-  #spinBtn { margin-top: 10px; }
-  #circle { width: 60px; height: 60px; background: #00c853; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-  #gameArea { position: relative; width: 100%; height: 300px; background: #f5f5f5; border: 2px solid #00c853; border-radius: 16px; overflow: hidden; margin-top: 20px; }
-  #timer, #score { font-size: 18px; margin: 5px; }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Poppins",sans-serif;}
+  body{background:#fff;color:#333;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;}
+  header{width:100%;background:#00c853;color:#fff;text-align:center;padding:15px;font-size:22px;font-weight:bold;border-radius:0 0 12px 12px;}
+  .container{width:90%;max-width:450px;margin-top:20px;}
+  .card{background:#f9f9f9;border:2px solid #00c853;border-radius:16px;padding:20px;margin-bottom:15px;text-align:center;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
+  .btn{background:#00c853;color:white;border:none;padding:12px 18px;border-radius:12px;font-size:16px;cursor:pointer;transition:0.3s;}
+  .btn:hover{background:#009b42;}
+  nav{position:fixed;bottom:0;background:#fff;border-top:2px solid #00c853;width:100%;display:flex;justify-content:space-around;padding:10px 0;font-weight:bold;}
+  .hidden{display:none;}
+  .wheel{width:250px;height:250px;border-radius:50%;border:8px solid #00c853;margin:20px auto;position:relative;overflow:hidden;}
+  .wheel div{width:50%;height:50%;position:absolute;transform-origin:100% 100%;}
+  #circle{width:60px;height:60px;background:#00c853;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);cursor:pointer;}
+  #gameArea{position:relative;width:100%;height:300px;background:#f5f5f5;border:2px solid #00c853;border-radius:16px;overflow:hidden;margin-top:20px;}
+  #timer,#score{font-size:18px;margin:5px;}
+  @keyframes pop {0%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.4);}100%{transform:translate(-50%,-50%) scale(1);}}
 </style>
 </head>
 <body>
 
-<header>PlayGram Mini App</header>
+<header>Play Adds Game</header>
 
 <div id="login" class="container">
   <div class="card">
@@ -36,46 +36,39 @@
 </div>
 
 <div id="home" class="container hidden">
-  <div class="card"><h3>🎁 100 Points = ₹10 Gift Card</h3></div>
-  <div class="card">
-    <h3>Total Points: <span id="totalPoints">0</span></h3>
-    <h4>Daily Limit: 500</h4>
-  </div>
-  <div class="card">
-    <button class="btn" onclick="showSection('spin')">🎡 Spin & Win</button>
-  </div>
-  <div class="card">
-    <button class="btn" onclick="showSection('tap')">🎯 Tap The Circle</button>
-  </div>
-  <div class="card">
-    <button class="btn" onclick="showSection('redeem')">💰 Redeem Now</button>
-  </div>
+  <div class="card"><h3>🎁 500 Points = ₹5 | 5000 Points = ₹50</h3></div>
+  <div class="card"><h3>Total Points: <span id="totalPoints">0</span></h3></div>
+  <div class="card"><button class="btn" onclick="showSection('spin')">🎡 Spin & Win</button></div>
+  <div class="card"><button class="btn" onclick="showSection('tap')">🎯 Tap The Circle</button></div>
+  <div class="card"><button class="btn" onclick="showSection('redeem')">💰 Redeem Now</button></div>
 </div>
 
-<!-- Spin Wheel -->
 <div id="spin" class="container hidden">
   <h2>🎡 Spin & Win</h2>
-  <div id="wheel"></div>
+  <div class="wheel" id="wheel"></div>
   <button class="btn" id="spinBtn" onclick="spinWheel()">Spin Now</button>
   <p id="spinResult"></p>
 </div>
 
-<!-- Tap Game -->
 <div id="tap" class="container hidden">
   <h2>🎯 Tap The Circle</h2>
   <div><span id="timer">Time: 10</span> | <span id="score">Score: 0</span></div>
   <div id="gameArea">
     <div id="circle" onclick="tapCircle()"></div>
   </div>
-  <button class="btn" onclick="startTapGame()">Start Game</button>
+  <button class="btn" id="startTapBtn" onclick="startTapGame()">Start Game</button>
 </div>
 
-<!-- Redeem -->
 <div id="redeem" class="container hidden">
   <div class="card">
     <h2>💰 Redeem Points</h2>
     <p>Your Points: <b><span id="redeemPoints">0</span></b></p>
-    <input id="upi" placeholder="Enter UPI or Email" style="padding:10px;width:80%;border:2px solid #00c853;border-radius:10px;">
+    <select id="redeemOption" style="padding:10px;width:80%;border:2px solid #00c853;border-radius:10px;margin-top:10px;">
+      <option value="UPI">UPI</option>
+      <option value="Amazon">Amazon Voucher</option>
+      <option value="PlayStore">Play Store Code</option>
+    </select><br><br>
+    <input id="upi" placeholder="Enter UPI ID / Email" style="padding:10px;width:80%;border:2px solid #00c853;border-radius:10px;">
     <br><br>
     <button class="btn" onclick="redeemPoints()">Redeem</button>
     <p id="redeemMsg"></p>
@@ -91,14 +84,11 @@
 
 <script>
 let totalPoints = parseInt(localStorage.getItem('points')) || 0;
-let dailyPoints = parseInt(localStorage.getItem('dailyPoints')) || 0;
-let lastDate = localStorage.getItem('lastDate');
-let today = new Date().toLocaleDateString();
-if(lastDate !== today){ dailyPoints = 0; localStorage.setItem('lastDate', today); }
+let spinCooldown = false;
+let timeLeft=10, timer, gameActive=false;
+const tapPoints=5;
 
 function startApp(){
-  const name = document.getElementById('username').value.trim();
-  if(!name){ alert("Please enter your name!"); return; }
   document.getElementById('login').classList.add('hidden');
   document.getElementById('home').classList.remove('hidden');
   updatePoints();
@@ -114,87 +104,83 @@ function updatePoints(){
   document.getElementById('totalPoints').innerText = totalPoints;
   document.getElementById('redeemPoints').innerText = totalPoints;
   localStorage.setItem('points', totalPoints);
-  localStorage.setItem('dailyPoints', dailyPoints);
 }
 
-/* Build Spin Wheel */
-const wheel = document.getElementById('wheel');
-const spinValues = [2,4,6,8,10,12,14,15];
-for(let i=0;i<spinValues.length;i++){
+const wheel=document.getElementById('wheel');
+const segments=[2,4,6,8,10,12,14,15];
+const colors=["#00c853","#b2ff59","#64dd17","#1de9b6","#00bfa5","#00c853","#b2ff59","#64dd17"];
+segments.forEach((points,index)=>{
   const seg=document.createElement('div');
-  seg.className='segment';
-  seg.style.transform=`rotate(${i*45}deg) skewY(-45deg)`;
-  seg.style.background=i%2===0?'#d9fdd3':'#ffffff';
-  seg.innerHTML=`<span style='transform:skewY(45deg) rotate(22.5deg)'>${spinValues[i]}</span>`;
-  wheel.appendChild(seg);
-}
+  seg.style.background=colors[index];
+  seg.style.transform=`rotate(${index*45}deg) skewY(-45deg)`;
+  const label=document.createElement('span');
+  label.innerText=points;
+  label.style.position='absolute';label.style.top='10px';label.style.right='50%';
+  label.style.transform=`rotate(22.5deg) translate(90px) rotate(-22.5deg)`;
+  label.style.fontWeight='bold';label.style.color='#fff';
+  seg.appendChild(label);wheel.appendChild(seg);
+});
 
-let spinning=false;
 function spinWheel(){
-  if(spinning) return alert("⏳ Please wait!");
-  if(dailyPoints>=500) return alert("🎯 Daily limit reached!");
-  const deg = Math.floor(5000 + Math.random()*5000);
-  spinning=true;
+  if(spinCooldown) return alert("⏳ Please wait 10 seconds!");
+  const deg=Math.floor(5000+Math.random()*5000);
   wheel.style.transition="all 4s ease-out";
   wheel.style.transform=`rotate(${deg}deg)`;
+  spinCooldown=true;
   setTimeout(()=>{
-    const won = spinValues[Math.floor(Math.random()*spinValues.length)];
-    addPoints(won);
-    document.getElementById('spinResult').innerText=`🎉 You won ${won} points!`;
-    spinning=false;
+    const points=segments[Math.floor(Math.random()*segments.length)];
+    totalPoints+=points;
+    updatePoints();
+    document.getElementById('spinResult').innerText=`🎉 You won ${points} points!`;
+    setTimeout(()=>{spinCooldown=false;document.getElementById('spinResult').innerText="";},10000);
   },4000);
 }
 
-/* TAP THE CIRCLE */
-let score=0,timeLeft=10,timer,gameActive=false;
 function startTapGame(){
-  score=0; timeLeft=10; gameActive=true;
-  document.getElementById('score').innerText='Score: '+score;
+  timeLeft=10;gameActive=true;
+  document.getElementById('score').innerText='Score: 0';
   document.getElementById('timer').innerText='Time: '+timeLeft;
+  document.getElementById('startTapBtn').disabled=true;
   timer=setInterval(()=>{
     timeLeft--;
     document.getElementById('timer').innerText='Time: '+timeLeft;
     moveCircle();
-    if(timeLeft<=0){ endGame(); }
+    if(timeLeft<=0) endTapGame();
   },1000);
 }
+
 function tapCircle(){
   if(!gameActive) return;
-  addPoints(5);
-  score+=5;
-  document.getElementById('score').innerText='Score: '+score;
+  const circle=document.getElementById('circle');
+  circle.style.animation='pop 0.3s ease';
+  circle.addEventListener('animationend',()=>{circle.style.animation='';},{once:true});
+  moveCircle();
 }
+
+function endTapGame(){
+  clearInterval(timer);gameActive=false;
+  totalPoints+=tapPoints;
+  updatePoints();
+  alert(`🎯 Game Over! You earned ${tapPoints} points!`);
+  document.getElementById('startTapBtn').disabled=false;
+}
+
 function moveCircle(){
   const area=document.getElementById('gameArea');
   const circle=document.getElementById('circle');
-  const maxX=area.clientWidth-60;
-  const maxY=area.clientHeight-60;
-  const x=Math.random()*maxX;
-  const y=Math.random()*maxY;
-  circle.style.left=x+'px';
-  circle.style.top=y+'px';
-}
-function endGame(){
-  clearInterval(timer); gameActive=false;
-  alert(`🎯 Game Over! You earned ${score} points!`);
+  const maxX=area.clientWidth-60;const maxY=area.clientHeight-60;
+  const x=Math.random()*maxX;const y=Math.random()*maxY;
+  circle.style.left=x+'px';circle.style.top=y+'px';
 }
 
-/* ADD POINTS WITH DAILY LIMIT */
-function addPoints(pts){
-  if(dailyPoints+pts>500){alert("🚫 Daily limit reached!"); return;}
-  totalPoints+=pts;
-  dailyPoints+=pts;
-  updatePoints();
-}
-
-/* REDEEM */
 function redeemPoints(){
   const upi=document.getElementById('upi').value.trim();
-  if(totalPoints<100){document.getElementById('redeemMsg').innerText="❌ Minimum 100 points required!";return;}
-  if(!upi){document.getElementById('redeemMsg').innerText="Please enter UPI or Email";return;}
-  document.getElementById('redeemMsg').innerText="✅ Redeem request submitted!";
-  totalPoints-=100;
+  if(totalPoints<500){document.getElementById('redeemMsg').innerText="❌ Minimum 500 points required!";return;}
+  if(!upi){document.getElementById('redeemMsg').innerText="⚠️ Enter UPI or Email";return;}
+  const option=document.getElementById('redeemOption').value;
+  totalPoints-=500;
   updatePoints();
+  document.getElementById('redeemMsg').innerText=`✅ ${option} redeem request sent!`;
 }
 </script>
 </body>
