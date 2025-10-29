@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="monetag" content="35ff941ec8e9e0f08b73c60fcacd463e">
+  <title>Play Adds Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(180deg, #e8fff0, #ffffff);
+      color: #0a3d23;
+      text-align: center;
+    }
+    header {
+      background: #1fa84a;
+      color: #fff;
+      padding: 12px;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+    .hidden { display: none; }
+    button {
+      background: #1fa84a;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 30px;
+      margin: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:active { transform: scale(0.96); }
+    .circle {
+      width: 130px; height: 130px; background: #1fa84a;
+      border-radius: 50%; margin: 40px auto;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 22px;
+      box-shadow: 0 0 15px rgba(31,168,74,0.6);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.9; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .wheel {
+      width: 260px; height: 260px; border-radius: 50%;
+      border: 10px solid #1fa84a; margin: 40px auto;
+      background: conic-gradient(
+        #aaffb8 0deg 45deg, #e5ffe8 45deg 90deg,
+        #aaffb8 90deg 135deg, #e5ffe8 135deg 180deg,
+        #aaffb8 180deg 225deg, #e5ffe8 225deg 270deg,
+        #aaffb8 270deg 315deg, #e5ffe8 315deg 360deg
+      );
+      position: relative; transition: transform 3s ease-out;
+    }
+    #popup {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); display: none;
+      justify-content: center; align-items: center;
+      color: white; font-size: 20px; z-index: 10;
+    }
+    input, select {
+      padding: 10px; width: 80%; margin: 8px auto;
+      border: 1px solid #ccc; border-radius: 8px;
+      font-size: 16px; display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>Play Adds Game</header>
+
+  <div id="login">
+    <h2>Enter Your Name</h2>
+    <input id="username" placeholder="Your name" />
+    <button onclick="startGame()">Start</button>
+  </div>
+
+  <div id="home" class="hidden">
+    <p><b id="userDisplay"></b> | Points: <b id="points">0</b></p>
+    <button onclick="showSection('tap')">Tap Circle</button>
+    <button onclick="showSection('spin')">Spin Wheel</button>
+    <button onclick="showSection('redeem')">Redeem</button>
+    <button onclick="showSection('admin')">Admin</button>
+  </div>
+
+  <div id="tap" class="hidden">
+    <div class="circle" onclick="tapCircle()">Tap Me</div>
+    <p>Tap for 10 seconds → Get 5 Points (after ad)</p>
+    <button onclick="showSection('home')">Back</button>
+  </div>
+
+  <div id="spin" class="hidden">
+    <div class="wheel" id="wheel"></div>
+    <button onclick="spinWheel()">Spin</button>
+    <button onclick="showSection('home')">Back</button>
+  </div>
+
+  <div id="redeem" class="hidden">
+    <h3>Redeem your reward</h3>
+    <select id="redeemType">
+      <option value="UPI">UPI</option>
+      <option value="Email">Email</option>
+    </select>
+    <input id="redeemValue" placeholder="Enter UPI ID or Email" />
+    <button onclick="redeem()">Submit</button>
+    <button onclick="showSection('home')">Back</button>
+  </div>
+
+  <div id="admin" class="hidden">
+    <input type="password" id="adminPass" placeholder="Admin password" />
+    <button onclick="adminLogin()">Login</button>
+    <div id="adminPanel" class="hidden">
+      <h3>Admin Panel</h3>
+      <div id="requests"></div>
+      <button onclick="showSection('home')">Back</button>
+    </div>
+  </div>
+
+  <div id="popup"><div id="popupText">Popup</div></div>
+
+  <script>
+    let user, points = 0, dailyEarned = 0, today = new Date().toDateString();
+
+    function startGame() {
+      user = document.getElementById("username").value.trim();
+      if (!user) return alert("Enter your name!");
+      const saved = JSON.parse(localStorage.getItem(user) || "{}");
+      if (saved.date !== today) saved.date = today, saved.dailyEarned = 0;
+      points = saved.points || 0;
+      dailyEarned = saved.dailyEarned || 0;
+      document.getElementById("points").textContent = points;
+      document.getElementById("userDisplay").textContent = user;
+      showSection("home");
+      save();
+    }
+
+    function save() {
+      localStorage.setItem(user, JSON.stringify({ points, dailyEarned, date: today }));
+    }
+
+    function showSection(id) {
+      document.querySelectorAll("div").forEach(el => {
+        if (el.id) el.classList.add("hidden");
+      });
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function showPopup(msg, time = 2000) {
+      const pop = document.getElementById("popup");
+      document.getElementById("popupText").textContent = msg;
+      pop.style.display = "flex";
+      setTimeout(() => pop.style.display = "none", time);
+    }
+
+    function tapCircle() {
+      if (dailyEarned >= 500) return showPopup("Daily 500 points reached!");
+      showPopup("Showing Ad...", 3000);
+      setTimeout(() => {
+        points += 5; dailyEarned += 5; save();
+        document.getElementById("points").textContent = points;
+        showPopup("+5 points added!");
+      }, 3000);
+    }
+
+    function spinWheel() {
+      if (dailyEarned >= 500) return showPopup("Daily 500 points reached!");
+      const wheel = document.getElementById("wheel");
+      const deg = Math.floor(5000 + Math.random() * 5000);
+      wheel.style.transform = `rotate(${deg}deg)`;
+      const reward = [2, 4, 6, 8, 10, 12, 15][Math.floor(Math.random() * 7)];
+      showPopup("Showing Ad...", 3000);
+      setTimeout(() => {
+        points += reward; dailyEarned += reward; save();
+        document.getElementById("points").textContent = points;
+        showPopup("You won " + reward + " points!");
+      }, 3000);
+    }
+
+    function redeem() {
+      if (points < 500) return alert("Not enough points!");
+      const type = document.getElementById("redeemType").value;
+      const value = document.getElementById("redeemValue").value.trim();
+      if (!value) return alert("Enter your " + type + "!");
+      const data = JSON.parse(localStorage.getItem("requests") || "[]");
+      data.push({ user, type, value, points });
+      localStorage.setItem("requests", JSON.stringify(data));
+      showPopup("Redeem request sent!");
+    }
+
+    function adminLogin() {
+      const pass = document.getElementById("adminPass").value;
+      if (pass !== "admin123") return alert("Wrong password!");
+      document.getElementById("adminPanel").classList.remove("hidden");
+      const list = JSON.parse(localStorage.getItem("requests") || "[]");
+      document.getElementById("requests").innerHTML =
+        list.map(r => `<p>${r.user}: ${r.points} pts → ${r.type}: ${r.value}</p>`).join("") || "No requests yet";
+    }
+  </script>
+</body>
+</html>
